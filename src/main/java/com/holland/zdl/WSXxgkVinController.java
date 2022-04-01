@@ -1,13 +1,11 @@
 package com.holland.zdl;
 
 import com.holland.zdl.WSXxgkVin.*;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
-@Slf4j
 @RestController
 @RequestMapping("/WSXxgkVin")
 public class WSXxgkVinController {

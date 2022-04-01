@@ -2,15 +2,11 @@ package com.holland.zdl.WSXxgkVin;
 
 import com.holland.zdl.WSXxgkVin.generate.WSXxgkVin;
 import com.holland.zdl.WSXxgkVin.generate.WSXxgkVinSoap;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import com.holland.zdl.util.Action;
 
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-@Slf4j
-@Component
 public class XSXxgkVinServiceHelper {
 
     private final WSXxgkVinSoap wsXxgkVinService = new WSXxgkVin().getWSXxgkVinSoap();
@@ -20,14 +16,11 @@ public class XSXxgkVinServiceHelper {
 
     private String key;
 
-    public XSXxgkVinServiceHelper(
-            @Value("${WSXxgkVin.manufid}") String manufid,
-            @Value("${WSXxgkVin.password}") String password
-    ) {
+    public XSXxgkVinServiceHelper(final String manufid, final String password) {
         final LoginResponse login = login(manufid, password);
         if (!login.succeed) {
-            log.error("Can't connect to 'XSXxgkVin', please check your XSXxgkVin-Account!");
-//            throw new RuntimeException("Can't connect to 'XSXxgkVin', please check your XSXxgkVin-Account!");
+            System.err.println("Can't connect to 'XSXxgkVin', please check your XSXxgkVin-Account!");
+            throw new RuntimeException("Can't connect to 'XSXxgkVin', please check your XSXxgkVin-Account!");
         }
 
         this.manufid = manufid;
@@ -47,9 +40,9 @@ public class XSXxgkVinServiceHelper {
      * <result><succeed>false</succeed><data/>密码错误</data></result>
      * <result><succeed>false</succeed><data>用户或密码错误</data></result>
      */
-    public LoginResponse login(String manufid, String password) {
+    public LoginResponse login(final String manufid, final String password) {
         final String res = wsXxgkVinService.login(manufid, password);
-        log.info("Invoke 'WSXxgkVin.login' api, result is [{}]", res);
+        System.out.println("Invoke 'WSXxgkVin.login' api, result is [" + res + "]");
         final LoginResponse response = new LoginResponse(res);
         if (response.succeed) key = response.data;
         return response;
@@ -59,7 +52,7 @@ public class XSXxgkVinServiceHelper {
      * 查询已报送VIN数
      * 输入参数： key = 临时认证码，不能为空；xshzh = 型式核准号；返回数据：一个标准的XML字符串
      */
-    public GetVinCountByXxgkhResponse getVinCountByXxgkh(String xxgkh) {
+    public GetVinCountByXxgkhResponse getVinCountByXxgkh(final String xxgkh) {
         return retryAction(
                 () -> new GetVinCountByXxgkhResponse(wsXxgkVinService.getVinCountByXxgkh(key, xxgkh))
                 , response -> response.succeed);
@@ -69,7 +62,7 @@ public class XSXxgkVinServiceHelper {
      * 查询已报送VIN总数通过报送日期
      * 输入参数： key = 临时认证码，不能为空；dtFrom = 报送起始时间；dtTo = 报送截至时间；时间格式 YYYY-MM-DD HH24:MI:SS；返回数据：一个标准的XML字符串
      */
-    public GetVinCountByDateResponse getVinCountByDate(String dtFrom, String dtTo) {
+    public GetVinCountByDateResponse getVinCountByDate(final String dtFrom, final String dtTo) {
         return retryAction(
                 () -> new GetVinCountByDateResponse(wsXxgkVinService.getVinCountByDate(key, dtFrom, dtTo))
                 , response -> response.succeed);
@@ -79,7 +72,7 @@ public class XSXxgkVinServiceHelper {
      * 查询已报送VIN所对应的环保激活码
      * 输入参数： key = 临时认证码，不能为空；vin = vin号；返回数据：一个标准的XML字符串
      */
-    public GetHbcodeByVinResponse getHbcodeByVin(String vin) {
+    public GetHbcodeByVinResponse getHbcodeByVin(final String vin) {
         return retryAction(
                 () -> new GetHbcodeByVinResponse(wsXxgkVinService.getHbcodeByVin(key, vin))
                 , response -> response.succeed);
@@ -89,7 +82,7 @@ public class XSXxgkVinServiceHelper {
      * 删除已上报VIN信息
      * 输入参数： key = 临时认证码，不能为空；vin = vin号；返回数据：一个标准的XML字符串
      */
-    public DelDataResponse delData(String vin) {
+    public DelDataResponse delData(final String vin) {
         return retryAction(
                 () -> new DelDataResponse(wsXxgkVinService.delData(key, vin))
                 , response -> response.succeed);
@@ -99,39 +92,26 @@ public class XSXxgkVinServiceHelper {
      * 退出本次连接
      * 输入参数；Key = 临时认证码，不能为空；返回数据：一个标准的XML字符串
      */
-    public LogoutResponse logout(String key) {
-        return retryAction(
-                () -> new LogoutResponse(wsXxgkVinService.logout(key))
-                , response -> response.succeed);
+    public LogoutResponse logout(final String key) {
+        return new LogoutResponse(wsXxgkVinService.logout(key));
     }
 
     /**
      * 上报Vin数据；注意，报送成功后1小时以后才会算正式报送完成
      * 输入参数： key = 临时认证码，不能为空；strVinData: 信息主体
      */
-    public SendVinDataResponse sendVinData(String strVinData) {
+    public SendVinDataResponse sendVinData(final String strVinData) {
         return retryAction(
                 () -> new SendVinDataResponse(wsXxgkVinService.sendVinData(key, strVinData))
                 , response -> response.succeed);
     }
 
-    public <T> T retryAction(Supplier<T> action, Predicate<T> predicate) {
-        return retryAction(
+    private <T> T retryAction(final Supplier<T> action, final Predicate<T> predicate) {
+        return Action.retry(
                 action
                 , predicate
                 , 1
                 , () -> login(manufid, password)
                 , response -> response.succeed);
-    }
-
-    public static <T, R> T retryAction(Supplier<T> action, Predicate<T> predicate, int retryTime, Supplier<R> retryAction, Predicate<R> whenTryActionDefeat) {
-        T t = action.get();
-        if (retryTime > 0 && !predicate.test(t)) {
-            final R r = retryAction.get();
-            if (whenTryActionDefeat.test(r)) {
-                t = retryAction(action, predicate, retryTime - 1, retryAction, whenTryActionDefeat);
-            }
-        }
-        return t;
     }
 }
