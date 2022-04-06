@@ -59,7 +59,6 @@ public class Action {
         for (int i = 0; i < 1000; i++)
             source.add(i);
 
-        final List<String> failedData = new ArrayList<>();
         final Res<List<String>> singleMapReduce = singleMapReduce(source
                 , integer -> {
                     if (integer % 2 == 0) {
@@ -67,7 +66,7 @@ public class Action {
                         data.add(integer + "a");
                         return Res.success(data);
                     } else
-                        return Res.failed(failedData);
+                        return Res.failed(new ArrayList<>());
                 }
                 , (res, res2) -> {
                     res.success &= res2.success;
@@ -79,15 +78,15 @@ public class Action {
         final long l1 = System.currentTimeMillis();
         System.out.println(l1 - l);
 
-        // TODO: 2022/4/2 返回集合大小不对
         final Res<List<String>> batchMapReduce = batchMapReduce(source
                 , collection -> {
                     if (collection.size() % 2 == 0) {
                         final List<String> data = new ArrayList<>();
                         data.add("这批数据完成了这么多个：" + collection.size());
                         return Res.success(data);
-                    } else
-                        return Res.failed(failedData);
+                    } else {
+                        return Res.failed(new ArrayList<>());
+                    }
                 }
                 , (res, res2) -> {
                     res.success &= res2.success;
