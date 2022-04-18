@@ -14,6 +14,7 @@ public class Action {
     public static <T, R> T retry(
             final Supplier<T> action
             , final Predicate<T> predicate
+            , final long interval
             , final int retryTime
             , final Supplier<R> retryAction
             , final Predicate<R> whenTryActionDefeat
@@ -21,8 +22,16 @@ public class Action {
         T t = action.get();
         if (retryTime > 0 && !predicate.test(t)) {
             final R r = retryAction.get();
-            if (whenTryActionDefeat == null || whenTryActionDefeat.test(r))
-                t = retry(action, predicate, retryTime - 1, retryAction, whenTryActionDefeat);
+            if (whenTryActionDefeat == null || whenTryActionDefeat.test(r)) {
+                if (interval > 0) {
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                t = retry(action, predicate, interval, retryTime - 1, retryAction, whenTryActionDefeat);
+            }
         }
         return t;
     }

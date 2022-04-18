@@ -110,6 +110,7 @@ public class XSXxgkVinServiceHelper {
         return Action.retry(
                 action
                 , predicate
+                , 500
                 , 1
                 , () -> login(manufid, password)
                 , response -> response.succeed);
