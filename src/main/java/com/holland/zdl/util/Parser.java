@@ -35,6 +35,12 @@ public class Parser {
             System.err.println("Try parse 'xml' error when assemble object");
             e.printStackTrace();
             return null;
+        }finally {
+            try {
+                input.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         return doc;
