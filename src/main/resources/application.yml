@@ -1,3 +1,5 @@
+server:
+  port: 9001
 WSXxgkVin:
   manufid: "tester"
   password: "test"
