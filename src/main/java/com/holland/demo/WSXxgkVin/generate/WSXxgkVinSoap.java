@@ -33,8 +33,8 @@ public interface WSXxgkVinSoap {
      */
     @WebMethod(action = "http://web1.vecc-sepa.org.cn/WSXxgkVin/login")
     @WebResult(name = "loginResult", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin")
-    @RequestWrapper(localName = "login", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.zdl.WSXxgkVin.generate.Login")
-    @ResponseWrapper(localName = "loginResponse", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.zdl.WSXxgkVin.generate.LoginResponse")
+    @RequestWrapper(localName = "login", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.demo.WSXxgkVin.generate.Login")
+    @ResponseWrapper(localName = "loginResponse", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.demo.WSXxgkVin.generate.LoginResponse")
     public String login(
         @WebParam(name = "manufid", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin")
         String manufid,
@@ -51,8 +51,8 @@ public interface WSXxgkVinSoap {
      */
     @WebMethod(action = "http://web1.vecc-sepa.org.cn/WSXxgkVin/getVinCountByXshzh")
     @WebResult(name = "getVinCountByXxgkhResult", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin")
-    @RequestWrapper(localName = "getVinCountByXxgkh", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.zdl.WSXxgkVin.generate.GetVinCountByXxgkh")
-    @ResponseWrapper(localName = "getVinCountByXxgkhResponse", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.zdl.WSXxgkVin.generate.GetVinCountByXxgkhResponse")
+    @RequestWrapper(localName = "getVinCountByXxgkh", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.demo.WSXxgkVin.generate.GetVinCountByXxgkh")
+    @ResponseWrapper(localName = "getVinCountByXxgkhResponse", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.demo.WSXxgkVin.generate.GetVinCountByXxgkhResponse")
     public String getVinCountByXxgkh(
         @WebParam(name = "key", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin")
         String key,
@@ -70,8 +70,8 @@ public interface WSXxgkVinSoap {
      */
     @WebMethod(action = "http://web1.vecc-sepa.org.cn/WSXxgkVin/getVinCountByDate")
     @WebResult(name = "getVinCountByDateResult", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin")
-    @RequestWrapper(localName = "getVinCountByDate", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.zdl.WSXxgkVin.generate.GetVinCountByDate")
-    @ResponseWrapper(localName = "getVinCountByDateResponse", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.zdl.WSXxgkVin.generate.GetVinCountByDateResponse")
+    @RequestWrapper(localName = "getVinCountByDate", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.demo.WSXxgkVin.generate.GetVinCountByDate")
+    @ResponseWrapper(localName = "getVinCountByDateResponse", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.demo.WSXxgkVin.generate.GetVinCountByDateResponse")
     public String getVinCountByDate(
         @WebParam(name = "key", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin")
         String key,
@@ -90,8 +90,8 @@ public interface WSXxgkVinSoap {
      */
     @WebMethod(action = "http://web1.vecc-sepa.org.cn/WSXxgkVin/getHbcodeByVin")
     @WebResult(name = "getHbcodeByVinResult", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin")
-    @RequestWrapper(localName = "getHbcodeByVin", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.zdl.WSXxgkVin.generate.GetHbcodeByVin")
-    @ResponseWrapper(localName = "getHbcodeByVinResponse", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.zdl.WSXxgkVin.generate.GetHbcodeByVinResponse")
+    @RequestWrapper(localName = "getHbcodeByVin", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.demo.WSXxgkVin.generate.GetHbcodeByVin")
+    @ResponseWrapper(localName = "getHbcodeByVinResponse", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.demo.WSXxgkVin.generate.GetHbcodeByVinResponse")
     public String getHbcodeByVin(
         @WebParam(name = "key", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin")
         String key,
@@ -108,8 +108,8 @@ public interface WSXxgkVinSoap {
      */
     @WebMethod(action = "http://web1.vecc-sepa.org.cn/WSXxgkVin/delData")
     @WebResult(name = "delDataResult", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin")
-    @RequestWrapper(localName = "delData", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.zdl.WSXxgkVin.generate.DelData")
-    @ResponseWrapper(localName = "delDataResponse", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.zdl.WSXxgkVin.generate.DelDataResponse")
+    @RequestWrapper(localName = "delData", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.demo.WSXxgkVin.generate.DelData")
+    @ResponseWrapper(localName = "delDataResponse", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.demo.WSXxgkVin.generate.DelDataResponse")
     public String delData(
         @WebParam(name = "key", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin")
         String key,
@@ -125,8 +125,8 @@ public interface WSXxgkVinSoap {
      */
     @WebMethod(action = "http://web1.vecc-sepa.org.cn/WSXxgkVin/logout")
     @WebResult(name = "logoutResult", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin")
-    @RequestWrapper(localName = "logout", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.zdl.WSXxgkVin.generate.Logout")
-    @ResponseWrapper(localName = "logoutResponse", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.zdl.WSXxgkVin.generate.LogoutResponse")
+    @RequestWrapper(localName = "logout", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.demo.WSXxgkVin.generate.Logout")
+    @ResponseWrapper(localName = "logoutResponse", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.demo.WSXxgkVin.generate.LogoutResponse")
     public String logout(
         @WebParam(name = "key", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin")
         String key);
@@ -141,8 +141,8 @@ public interface WSXxgkVinSoap {
      */
     @WebMethod(action = "http://web1.vecc-sepa.org.cn/WSXxgkVin/sendVinData")
     @WebResult(name = "sendVinDataResult", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin")
-    @RequestWrapper(localName = "sendVinData", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.zdl.WSXxgkVin.generate.SendVinData")
-    @ResponseWrapper(localName = "sendVinDataResponse", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.zdl.WSXxgkVin.generate.SendVinDataResponse")
+    @RequestWrapper(localName = "sendVinData", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.demo.WSXxgkVin.generate.SendVinData")
+    @ResponseWrapper(localName = "sendVinDataResponse", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin", className = "com.holland.demo.WSXxgkVin.generate.SendVinDataResponse")
     public String sendVinData(
         @WebParam(name = "key", targetNamespace = "http://web1.vecc-sepa.org.cn/WSXxgkVin")
         String key,
