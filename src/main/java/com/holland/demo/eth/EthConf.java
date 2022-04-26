@@ -47,7 +47,7 @@ public class EthConf {
         System.out.println(wei + " wei");
 
         final BigDecimal eth = wei.divide(BigDecimal.valueOf(1000000000000000000L), 18, RoundingMode.HALF_DOWN);
-        System.out.println(eth.doubleValue() + " eth");
+        System.out.println(eth.toString() + " eth");
 
         System.exit(0);
     }
