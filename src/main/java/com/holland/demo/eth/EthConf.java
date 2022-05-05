@@ -1,6 +1,7 @@
 package com.holland.demo.eth;
 
 import com.holland.demo.util.Scale;
+import com.holland.net.json_rpc2.JsonRpc2;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -9,7 +10,7 @@ import java.util.Map;
 
 public class EthConf {
     private static final String KEY;
-    private static final EthNet NET;
+    private static final JsonRpc2 NET;
 
 
     static {
@@ -17,7 +18,7 @@ public class EthConf {
         if (KEY == null)
             throw new RuntimeException("ETH_KEY is null");
 
-        NET = new EthNet(KEY);
+        NET = new JsonRpc2("https://eth-mainnet.alchemyapi.io/v2/" + KEY);
     }
 
     @SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
@@ -27,19 +28,19 @@ public class EthConf {
             System.exit(0);
         });
 
-        final String blockNumber = NET.sync.postJson("eth_blockNumber");
+        final String blockNumber = NET.sync.send("eth_blockNumber");
 
-        final Map<String, Object> eth_getBlockByNumber = NET.sync.postJson("eth_getBlockByNumber"
+        final Map<String, Object> eth_getBlockByNumber = NET.sync.send("eth_getBlockByNumber"
                 , blockNumber
                 , false);
         final List<String> transactions = (List<String>) eth_getBlockByNumber.get("transactions");
         System.out.println("> count transactions: " + transactions.size());
 
-        final Map<String, Object> eth_getTransactionByHash = NET.sync.postJson("eth_getTransactionByHash"
+        final Map<String, Object> eth_getTransactionByHash = NET.sync.send("eth_getTransactionByHash"
                 , transactions.get(0));
         final Object to = eth_getTransactionByHash.get("to");
 
-        final String eth_getBalance = NET.sync.postJson("eth_getBalance"
+        final String eth_getBalance = NET.sync.send("eth_getBalance"
                 , to
                 , "latest");
 
