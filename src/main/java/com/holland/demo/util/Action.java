@@ -11,6 +11,17 @@ import java.util.function.Supplier;
 
 public class Action {
 
+    /**
+     * @param action              执行动作
+     * @param predicate           判断执行动作是否成功，成功就不会重试了。true：成功
+     * @param interval            重试间隔，单位：毫秒，小于等于0则立即重试
+     * @param retryTime           重试次数
+     * @param retryAction         重试前执行的处理动作
+     * @param whenTryActionDefeat 判断处理动作是否执行成功，执行成功才会重试，可空（必定重试）。true：成功
+     * @param <T>                 执行动作的结果
+     * @param <R>                 处理动作的结果
+     * @return 返回最后一次执行动作的结果
+     */
     public static <T, R> T retry(
             final Supplier<T> action
             , final Predicate<T> predicate
