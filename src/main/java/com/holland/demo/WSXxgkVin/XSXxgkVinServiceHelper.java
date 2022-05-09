@@ -20,7 +20,7 @@ public class XSXxgkVinServiceHelper {
         final LoginResponse login = login(manufid, password);
         if (!login.succeed) {
             System.err.println("Can't connect to 'XSXxgkVin', please check your XSXxgkVin-Account!");
-            throw new RuntimeException("Can't connect to 'XSXxgkVin', please check your XSXxgkVin-Account!");
+//            throw new RuntimeException("Can't connect to 'XSXxgkVin', please check your XSXxgkVin-Account!");
         }
 
         this.manufid = manufid;
@@ -110,7 +110,7 @@ public class XSXxgkVinServiceHelper {
         return Action.retry(
                 action
                 , predicate
-                , 500
+                , 50
                 , 1
                 , () -> login(manufid, password)
                 , response -> response.succeed);
