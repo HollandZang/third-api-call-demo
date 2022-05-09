@@ -87,7 +87,7 @@ public class CloudCenter {
 
             System.out.println("> heathCheck: \n"
                     + servers.entrySet().stream()
-                    .map(e -> String.format("[%s] online: %s", e.getKey(), e.getValue().size()))
+                    .map(e -> String.format("\t[%s] online: %s", e.getKey(), e.getValue().size()))
                     .collect(Collectors.joining("\n"))
             );
         }, 1, 3, TimeUnit.SECONDS);
