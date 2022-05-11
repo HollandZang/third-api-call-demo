@@ -8,19 +8,24 @@ import okhttp3.ResponseBody;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class Cloud {
     private final Net net;
     private final ScheduledThreadPoolExecutor registerPool;
+    private final String centerUrl;
 
-    private final String url;
     private final String serverName;
+    private final String serverUrl;
+    private final String serverForwardRule;
 
-    public Cloud(String url, String serverName) {
-        this.url = url;
+    public Cloud(String centerUrl, String serverName, String serverUrl, String serverForwardRule) {
+        this.centerUrl = centerUrl;
         this.serverName = serverName;
+        this.serverUrl = serverUrl;
+        this.serverForwardRule = serverForwardRule;
     }
 
     {
@@ -38,19 +43,16 @@ public class Cloud {
             }
         };
         this.net = new Net(conf);
-        this.registerPool = new ScheduledThreadPoolExecutor(1, r -> {
-            final Thread thread = new Thread(r);
-            thread.setName("heathCheck_thread");
-            return thread;
-        });
+        this.registerPool = new ScheduledThreadPoolExecutor(1, r -> new Thread(r,"heathCheck_thread"));
     }
 
     public void register() {
         registerPool.scheduleWithFixedDelay(() -> {
-            net.async.postJson(url + "/register", null
+            net.async.postJson(centerUrl + "/register", null
                     , new PairBuilder()
                             .add("server", serverName)
-                            .add("url", "http://localhost:9001")
+                            .add("url", serverUrl)
+                            .add("forwardRule", serverForwardRule)
                     , response -> {
                         try {
                             final ResponseBody body = response.body();
@@ -70,8 +72,14 @@ public class Cloud {
         }, 0, 1, TimeUnit.MINUTES);
     }
 
-    public static void main(String[] args) {
-        final Cloud cloud = new Cloud("http://localhost:9001/cloud/center", "test_server");
+    public static void main(String[] args) throws InterruptedException {
+        final Cloud cloud = new Cloud("http://localhost:9001/cloud/center", "test_server", "http://localhost:9001", "^/?cloud/center/w.*");
         cloud.register();
+        Thread.sleep(1000);
+//        final Optional<String> s = cloud.net.sync.get("http://localhost:9001/cloud/center/watch", null
+//                , new PairBuilder().add("a", 1));
+//        s.ifPresent(System.out::println);
+
+        System.exit(0);
     }
 }

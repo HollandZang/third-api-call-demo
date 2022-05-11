@@ -1,12 +1,16 @@
 package com.holland.demo.cloud;
 
 import com.holland.demo.util.Requests;
+import com.holland.demo.util.Validator;
 import com.holland.net.Net;
 import com.holland.net.conf.DefaultHttpConf;
+import okhttp3.MediaType;
 import okhttp3.Request;
+import okhttp3.Response;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -15,21 +19,18 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/cloud/center")
 public class CloudCenter {
-    private final Map<String, List<Server>> servers;
+    public final Map<String, List<Server>> servers;
     private final long maxFreeTime;
     private final ScheduledThreadPoolExecutor heathCheckPool;
     private final Net net;
+    private final DefaultHttpConf conf;
 
     {
         /* 1 minute */
         this.maxFreeTime = 1000 * 60;
         this.servers = new HashMap<>();
-        this.heathCheckPool = new ScheduledThreadPoolExecutor(1, r -> {
-            final Thread thread = new Thread(r);
-            thread.setName("heathCheck_thread");
-            return thread;
-        });
-        final DefaultHttpConf conf = new DefaultHttpConf() {
+        this.heathCheckPool = new ScheduledThreadPoolExecutor(1, r -> new Thread(r, "heathCheck_thread"));
+        this.conf = new DefaultHttpConf() {
             @Override
             public Request.Builder getRequest(Map<String, ?> headers) {
                 Request.Builder builder = new Request.Builder()
@@ -42,7 +43,8 @@ public class CloudCenter {
                 return builder;
             }
         };
-        this.net = new Net(conf);
+        this.net = new Net(this.conf);
+
         heathCheckTask();
     }
 
@@ -57,8 +59,14 @@ public class CloudCenter {
         final long networkLatency = System.currentTimeMillis() - timestamp;
         final String serverName = body.get("server");
         final String url = body.get("url");
-        // TODO: 2022/5/9 validate parameters
+        final String forwardRule = body.get("forwardRule");
 
+        Validator.test(serverName, "serverName").notEmpty();
+        Validator.test(url, "url").notEmpty();
+        Validator.test(forwardRule, "forwardRule").notEmpty();
+
+//        request.getRemoteHost();
+//        request.getRemotePort();
         servers.computeIfPresent(serverName, (name, list) -> {
             final Optional<Server> o = list.stream().filter(server -> server.url.equals(url)).findFirst();
             if (o.isPresent()) {
@@ -66,13 +74,13 @@ public class CloudCenter {
                 server.lastConnectTime = timestamp;
                 server.networkLatency = networkLatency;
             } else {
-                list.add(new Server(serverName, url, timestamp, timestamp, networkLatency));
+                list.add(new Server(serverName, url, forwardRule, timestamp, timestamp, networkLatency));
             }
             return list;
         });
         servers.computeIfAbsent(serverName, name -> {
             final List<Server> list = new ArrayList<>();
-            list.add(new Server(serverName, url, timestamp, timestamp, networkLatency));
+            list.add(new Server(serverName, url, forwardRule, timestamp, timestamp, networkLatency));
             return list;
         });
         return "OK";
@@ -90,32 +98,37 @@ public class CloudCenter {
                     .map(e -> String.format("\t[%s] online: %s", e.getKey(), e.getValue().size()))
                     .collect(Collectors.joining("\n"))
             );
-        }, 1, 3, TimeUnit.SECONDS);
+        }, 1, 1, TimeUnit.MINUTES);
     }
 
-    public String router(HttpServletRequest request, Map<String, String> body) {
-        final Map<String, String> headers = Requests.headers(request);
-        final String forwardServer = request.getHeader("forward");
-        final List<Server> servers = this.servers.get(forwardServer);
+    public List<Server> findRoute(HttpServletRequest request) {
         final long currentTimeMillis = System.currentTimeMillis();
-        if (servers != null && !servers.isEmpty()) {
-            final Optional<Server> o = servers.stream().filter(server -> currentTimeMillis - server.lastConnectTime > maxFreeTime)
-                    .findFirst();
-            if (o.isPresent()) {
-                final Server server = o.get();
-                return route(server, headers, body);
+        final String uri = request.getRequestURI();
+        for (Map.Entry<String, List<Server>> entry : servers.entrySet()) {
+            final List<Server> value = entry.getValue();
+            if (value.size() > 0 && uri.matches(value.get(0).forwardRule)) {
+                return value.stream()
+                        .filter(server -> currentTimeMillis - server.lastConnectTime < maxFreeTime)
+                        .sorted(LoadBalance::random)
+                        .collect(Collectors.toList());
             }
         }
-        System.err.println("No route");
-        return null;
+        return new ArrayList<>();
     }
 
-    private String route(Server server, Map<String, String> headers, Map<String, String> body) {
-        final Optional<String> o = net.sync.postJson(server.url, headers, body);
-        //            server.lastConnectTime = timestamp;
-        //            server.networkLatency = networkLatency;
-        return o.orElse(null);
-    }
+    public Response route(Server server, HttpServletRequest request, String bodyStr) {
+        final Map<String, String> headers = Requests.headers(request);
 
+        final Request req = this.conf.getRequest(headers)
+                .url(server.url + request.getRequestURI())
+                .method(request.getMethod(), okhttp3.RequestBody.create(MediaType.parse(headers.get("Content-Type")), bodyStr))
+                .build();
+        try {
+            return this.conf.getClient().newCall(req).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new Response.Builder().code(500).build();
+        }
+    }
 
 }
