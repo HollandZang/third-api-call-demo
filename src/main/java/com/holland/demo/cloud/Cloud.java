@@ -8,7 +8,6 @@ import okhttp3.ResponseBody;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -43,10 +42,11 @@ public class Cloud {
             }
         };
         this.net = new Net(conf);
-        this.registerPool = new ScheduledThreadPoolExecutor(1, r -> new Thread(r,"heathCheck_thread"));
+        this.registerPool = new ScheduledThreadPoolExecutor(1, r -> new Thread(r, "heathCheck_thread"));
+        register();
     }
 
-    public void register() {
+    private void register() {
         registerPool.scheduleWithFixedDelay(() -> {
             net.async.postJson(centerUrl + "/register", null
                     , new PairBuilder()
@@ -74,7 +74,6 @@ public class Cloud {
 
     public static void main(String[] args) throws InterruptedException {
         final Cloud cloud = new Cloud("http://localhost:9001/cloud/center", "test_server", "http://localhost:9001", "^/?cloud/center/w.*");
-        cloud.register();
         Thread.sleep(1000);
 //        final Optional<String> s = cloud.net.sync.get("http://localhost:9001/cloud/center/watch", null
 //                , new PairBuilder().add("a", 1));
