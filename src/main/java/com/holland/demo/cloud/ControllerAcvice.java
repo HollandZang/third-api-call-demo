@@ -1,6 +1,5 @@
 package com.holland.demo.cloud;
 
-import com.holland.demo.util.Requests;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServerHttpRequest;
@@ -17,8 +16,8 @@ public class ControllerAcvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
-        Requests.REQ_TREAD_LOCAL.remove();
-        Requests.REQ_BODY_TREAD_LOCAL.remove();
+        ThreadLocals.REQUEST.remove();
+        ThreadLocals.REQUEST_BODY.remove();
         return body;
     }
 }

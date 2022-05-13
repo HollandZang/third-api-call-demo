@@ -1,5 +1,7 @@
 package com.holland.demo.util;
 
+import com.holland.demo.cloud.ThreadLocals;
+
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
@@ -25,14 +27,11 @@ public class Requests {
         return map;
     }
 
-    public static final ThreadLocal<String> REQ_BODY_TREAD_LOCAL = new ThreadLocal<>();
-    public static final ThreadLocal<ServletRequest> REQ_TREAD_LOCAL = new ThreadLocal<>();
-
     /**
      * @param request need reset request from thread local
      */
     public static String getBodyStr(ServletRequest request) throws IOException {
-        final String body = REQ_BODY_TREAD_LOCAL.get();
+        final String body = ThreadLocals.REQUEST_BODY.get();
         if (body != null)
             return body;
 
@@ -113,8 +112,8 @@ public class Requests {
                 };
             }
         };
-        REQ_BODY_TREAD_LOCAL.set(s);
-        REQ_TREAD_LOCAL.set(request);
+        ThreadLocals.REQUEST_BODY.set(s);
+        ThreadLocals.REQUEST.set(request);
         return s;
     }
 }

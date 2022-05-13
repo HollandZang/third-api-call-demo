@@ -31,7 +31,7 @@ public class RouteFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         final String bodyStr = Requests.getBodyStr(request);
-        request = Requests.REQ_TREAD_LOCAL.get();
+        request = ThreadLocals.REQUEST.get();
 
         final List<Server> servers = cloudCenter.findRoute((HttpServletRequest) request);
         if (servers.size() > 0) {
@@ -39,13 +39,16 @@ public class RouteFilter implements Filter {
             final ServletOutputStream outputStream = response.getOutputStream();
             for (Server server : servers) {
                 final Response resp = cloudCenter.route(server, (HttpServletRequest) request, bodyStr);
-                if (!resp.isSuccessful())
+                /*IOException*/
+                if (resp == null) {
+                    server.networkLatency = Long.MAX_VALUE;
+                    server.visitNum++;
                     continue;
+                }
 
-                // TODO: 2022/5/10 更新服务状态参数
-
-                //            server.lastConnectTime = timestamp;
-                //            server.networkLatency = networkLatency;
+                updateServerState((HttpServletRequest) request, server, resp);
+                if (resp.body() == null)
+                    return;
                 final String respBody = resp.body().string();
                 outputStream.write(respBody.getBytes(StandardCharsets.UTF_8));
                 return;
@@ -55,6 +58,18 @@ public class RouteFilter implements Filter {
         }
         System.out.println("> accept: " + ((HttpServletRequest) request).getRequestURI());
         chain.doFilter(request, response);
+    }
+
+    private void updateServerState(HttpServletRequest request, Server server, Response resp) {
+        final String timestamp = resp.header("timestamp");
+        if (timestamp != null) {
+            server.networkLatency = Long.parseLong(timestamp) - Long.parseLong(request.getHeader("timestamp"));
+            server.lastConnectTime = Long.parseLong(timestamp);
+        } else {
+            server.networkLatency = System.currentTimeMillis() - Long.parseLong(request.getHeader("timestamp"));
+            server.lastConnectTime = System.currentTimeMillis();
+        }
+        server.visitNum++;
     }
 
     @Override

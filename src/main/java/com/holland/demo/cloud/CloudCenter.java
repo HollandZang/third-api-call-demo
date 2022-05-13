@@ -127,7 +127,7 @@ public class CloudCenter {
             return this.conf.getClient().newCall(req).execute();
         } catch (IOException e) {
             e.printStackTrace();
-            return new Response.Builder().code(500).build();
+            return null;
         }
     }
 
