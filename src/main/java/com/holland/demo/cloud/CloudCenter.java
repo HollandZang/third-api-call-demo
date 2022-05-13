@@ -109,7 +109,7 @@ public class CloudCenter {
             if (value.size() > 0 && uri.matches(value.get(0).forwardRule)) {
                 return value.stream()
                         .filter(server -> currentTimeMillis - server.lastConnectTime < maxFreeTime)
-                        .sorted(LoadBalance::random)
+                        .sorted(LoadBalance::latency)
                         .collect(Collectors.toList());
             }
         }
