@@ -1,8 +1,9 @@
 package com.holland.demo.cloud;
 
-import com.google.gson.reflect.TypeToken;
 import com.holland.demo.util.Requests;
 import okhttp3.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 
@@ -12,20 +13,19 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 
 @Order(100)
 @Configuration
 public class RouteFilter implements Filter {
-    private static final TypeToken<Map<String, String>> MAP_STR_TYPE = new TypeToken<Map<String, String>>() {
-    };
+
+    private final Logger logger = LoggerFactory.getLogger(RouteFilter.class);
 
     @Resource
     private CloudCenter cloudCenter;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-
+        logger.info("Initializing RouteFilter");
     }
 
     @Override
@@ -39,7 +39,7 @@ public class RouteFilter implements Filter {
             final ServletOutputStream outputStream = response.getOutputStream();
             for (Server server : servers) {
                 final Response resp = cloudCenter.route(server, (HttpServletRequest) request, bodyStr);
-                /*IOException*/
+                /* When IOException happened */
                 if (resp == null) {
                     server.networkLatency = Long.MAX_VALUE;
                     server.visitNum++;
@@ -74,6 +74,6 @@ public class RouteFilter implements Filter {
 
     @Override
     public void destroy() {
-
+        logger.info("Destroying RouteFilter");
     }
 }
