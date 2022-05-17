@@ -14,19 +14,19 @@ import java.util.stream.Collectors;
  * @param <T> 数据类型
  * @param <R> 结果类型
  */
-public class BatchRecursiveTask<T, R> extends RecursiveTask<List<Res<R>>> {
+public class BatchRecursiveTask<T, R> extends RecursiveTask<List<BatchRes<R>>> {
     private final Collection<T> source;
-    private final Function<Collection<T>, Res<R>> map;
+    private final Function<Collection<T>, BatchRes<R>> map;
 
     private static final int THRESHOLD = 10;
 
-    public BatchRecursiveTask(Collection<T> source, Function<Collection<T>, Res<R>> map) {
+    public BatchRecursiveTask(Collection<T> source, Function<Collection<T>, BatchRes<R>> map) {
         this.source = source;
         this.map = map;
     }
 
     @Override
-    protected List<Res<R>> compute() {
+    protected List<BatchRes<R>> compute() {
         if (source.size() > THRESHOLD) {
             return ForkJoinTask.invokeAll(createSubtasks())
                     .stream()
@@ -34,8 +34,8 @@ public class BatchRecursiveTask<T, R> extends RecursiveTask<List<Res<R>>> {
                     .flatMap(Collection::stream)
                     .collect(Collectors.toList());
         } else {
-            final Res<R> processing = processing(source);
-            final List<Res<R>> res = new ArrayList<>();
+            final BatchRes<R> processing = processing(source);
+            final List<BatchRes<R>> res = new ArrayList<>();
             res.add(processing);
             return res;
         }
@@ -48,7 +48,7 @@ public class BatchRecursiveTask<T, R> extends RecursiveTask<List<Res<R>>> {
         return dividedTasks;
     }
 
-    private Res<R> processing(Collection<T> source) {
+    private BatchRes<R> processing(Collection<T> source) {
 //        try {
 //            Thread.sleep(1000);
 //        } catch (InterruptedException e) {

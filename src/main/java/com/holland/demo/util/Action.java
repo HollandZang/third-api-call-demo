@@ -47,30 +47,30 @@ public class Action {
         return t;
     }
 
-    public static <T, R> Res<R> singleMapReduce(
+    public static <T, R> BatchRes<R> singleMapReduce(
             Collection<T> source
-            , Function<T, Res<R>> map
-            , BinaryOperator<Res<R>> reduce
+            , Function<T, BatchRes<R>> map
+            , BinaryOperator<BatchRes<R>> reduce
     ) {
         final ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
-        final List<Res<R>> r = forkJoinPool.invoke(new SingleRecursiveTask<>(source, map));
+        final List<BatchRes<R>> r = forkJoinPool.invoke(new SingleRecursiveTask<>(source, map));
 
         return r.stream()
                 .reduce(reduce)
-                .orElse(new Res<>(false, 0, null));
+                .orElse(new BatchRes<>(false, 0, null));
     }
 
-    public static <T, R> Res<R> batchMapReduce(
+    public static <T, R> BatchRes<R> batchMapReduce(
             Collection<T> source
-            , Function<Collection<T>, Res<R>> map
-            , BinaryOperator<Res<R>> reduce
+            , Function<Collection<T>, BatchRes<R>> map
+            , BinaryOperator<BatchRes<R>> reduce
     ) {
         final ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
-        final List<Res<R>> r = forkJoinPool.invoke(new BatchRecursiveTask<>(source, map));
+        final List<BatchRes<R>> r = forkJoinPool.invoke(new BatchRecursiveTask<>(source, map));
 
         return r.stream()
                 .reduce(reduce)
-                .orElse(new Res<>(false, 0, null));
+                .orElse(new BatchRes<>(false, 0, null));
     }
 
     public static void main(String[] args) {
@@ -79,14 +79,14 @@ public class Action {
         for (int i = 0; i < 1000; i++)
             source.add(i);
 
-        final Res<List<String>> singleMapReduce = singleMapReduce(source
+        final BatchRes<List<String>> singleMapReduce = singleMapReduce(source
                 , integer -> {
                     if (integer % 2 == 0) {
                         final List<String> data = new ArrayList<>();
                         data.add(integer + "a");
-                        return Res.success(data);
+                        return BatchRes.success(data);
                     } else
-                        return Res.failed(new ArrayList<>());
+                        return BatchRes.failed(new ArrayList<>());
                 }
                 , (res, res2) -> {
                     res.success &= res2.success;
@@ -98,14 +98,14 @@ public class Action {
         final long l1 = System.currentTimeMillis();
         System.out.println(l1 - l);
 
-        final Res<List<String>> batchMapReduce = batchMapReduce(source
+        final BatchRes<List<String>> batchMapReduce = batchMapReduce(source
                 , collection -> {
                     if (collection.size() % 2 == 0) {
                         final List<String> data = new ArrayList<>();
                         data.add("这批数据完成了这么多个：" + collection.size());
-                        return Res.success(data);
+                        return BatchRes.success(data);
                     } else {
-                        return Res.failed(new ArrayList<>());
+                        return BatchRes.failed(new ArrayList<>());
                     }
                 }
                 , (res, res2) -> {

@@ -35,7 +35,7 @@ public class RouteFilter implements Filter {
 
         final List<Server> servers = cloudCenter.findRoute((HttpServletRequest) request);
         if (servers.size() > 0) {
-            System.out.println("> forward: " + ((HttpServletRequest) request).getRequestURI());
+            logger.debug("> forward: " + ((HttpServletRequest) request).getRequestURI());
             final ServletOutputStream outputStream = response.getOutputStream();
             for (Server server : servers) {
                 final Response resp = cloudCenter.route(server, (HttpServletRequest) request, bodyStr);
@@ -56,7 +56,7 @@ public class RouteFilter implements Filter {
             outputStream.write("> failed to reach forwarding service".getBytes(StandardCharsets.UTF_8));
             return;
         }
-        System.out.println("> accept: " + ((HttpServletRequest) request).getRequestURI());
+        logger.debug("> accept: " + ((HttpServletRequest) request).getRequestURI());
         chain.doFilter(request, response);
     }
 

@@ -3,6 +3,8 @@ package com.holland.demo.WSXxgkVin;
 import com.holland.demo.WSXxgkVin.generate.WSXxgkVin;
 import com.holland.demo.WSXxgkVin.generate.WSXxgkVinSoap;
 import com.holland.demo.util.Action;
+import com.holland.net.Net;
+import com.holland.net.common.PairBuilder;
 
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -15,9 +17,12 @@ public class XSXxgkVinServiceHelper {
     private final String password;
 
     private String key;
+    private long key_create_time;
+    private final long INTERVAL = 1000;
+    private LoginResponse cacheLogin;
 
     public XSXxgkVinServiceHelper(final String manufid, final String password) {
-        final LoginResponse login = login(manufid, password);
+        final LoginResponse login = login(manufid, password, System.currentTimeMillis());
         if (!login.succeed) {
             System.err.println("Can't connect to 'XSXxgkVin', please check your XSXxgkVin-Account!");
 //            throw new RuntimeException("Can't connect to 'XSXxgkVin', please check your XSXxgkVin-Account!");
@@ -40,11 +45,20 @@ public class XSXxgkVinServiceHelper {
      * <result><succeed>false</succeed><data/>密码错误</data></result>
      * <result><succeed>false</succeed><data>用户或密码错误</data></result>
      */
-    public LoginResponse login(final String manufid, final String password) {
+    private synchronized LoginResponse login(final String manufid, final String password, final long callTime) {
+        final boolean isCache = cacheLogin != null && callTime <= key_create_time + INTERVAL;
+//        System.out.println(String.format("callTime:[%d]\tkey_time:[%d]\tisCache:[%b]", callTime, key_create_time, isCache));
+        if (isCache)
+            return cacheLogin;
+
         final String res = wsXxgkVinService.login(manufid, password);
-        System.out.println("Invoke 'WSXxgkVin.login' api, result is [" + res + "]");
+//        System.out.println("Invoke 'WSXxgkVin.login' api, result is [" + res + "]");
         final LoginResponse response = new LoginResponse(res);
-        if (response.succeed) key = response.data;
+        if (response.succeed) {
+            key = response.data;
+            cacheLogin = response;
+        }
+        key_create_time = System.currentTimeMillis();
         return response;
     }
 
@@ -112,7 +126,18 @@ public class XSXxgkVinServiceHelper {
                 , predicate
                 , 50
                 , 1
-                , () -> login(manufid, password)
+                , () -> login(manufid, password, System.currentTimeMillis())
                 , response -> response.succeed);
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        final Net net = new Net();
+        for (int i = 0; i < 100; i++) {
+            Thread.sleep(7);
+            net.sync.get("http://localhost:9001/WSXxgkVin/GetHbcodeByVin", null
+                    , new PairBuilder().add("vin", "test")
+
+            );
+        }
     }
 }

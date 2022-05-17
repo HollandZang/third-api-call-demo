@@ -14,19 +14,19 @@ import java.util.stream.Collectors;
  * @param <T> 数据类型
  * @param <R> 结果类型
  */
-public class SingleRecursiveTask<T, R> extends RecursiveTask<List<Res<R>>> {
+public class SingleRecursiveTask<T, R> extends RecursiveTask<List<BatchRes<R>>> {
     private final Collection<T> source;
-    private final Function<T, Res<R>> map;
+    private final Function<T, BatchRes<R>> map;
 
     private static final int THRESHOLD = 10;
 
-    public SingleRecursiveTask(Collection<T> source, Function<T, Res<R>> map) {
+    public SingleRecursiveTask(Collection<T> source, Function<T, BatchRes<R>> map) {
         this.source = source;
         this.map = map;
     }
 
     @Override
-    protected List<Res<R>> compute() {
+    protected List<BatchRes<R>> compute() {
         if (source.size() > THRESHOLD) {
             return ForkJoinTask.invokeAll(createSubtasks())
                     .stream()
@@ -44,7 +44,7 @@ public class SingleRecursiveTask<T, R> extends RecursiveTask<List<Res<R>>> {
         return dividedTasks;
     }
 
-    private List<Res<R>> processing(Collection<T> source) {
+    private List<BatchRes<R>> processing(Collection<T> source) {
 //        try {
 //            Thread.sleep(1000);
 //        } catch (InterruptedException e) {
