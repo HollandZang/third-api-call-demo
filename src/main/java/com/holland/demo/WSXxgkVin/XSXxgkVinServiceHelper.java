@@ -18,7 +18,6 @@ public class XSXxgkVinServiceHelper {
 
     private String key;
     private long key_create_time;
-    private final long INTERVAL = 1000;
     private LoginResponse cacheLogin;
 
     public XSXxgkVinServiceHelper(final String manufid, final String password) {
@@ -46,7 +45,7 @@ public class XSXxgkVinServiceHelper {
      * <result><succeed>false</succeed><data>用户或密码错误</data></result>
      */
     private synchronized LoginResponse login(final String manufid, final String password, final long callTime) {
-        final boolean isCache = cacheLogin != null && callTime <= key_create_time + INTERVAL;
+        final boolean isCache = cacheLogin != null && callTime <= key_create_time + 1000;
 //        System.out.println(String.format("callTime:[%d]\tkey_time:[%d]\tisCache:[%b]", callTime, key_create_time, isCache));
         if (isCache)
             return cacheLogin;
@@ -136,7 +135,6 @@ public class XSXxgkVinServiceHelper {
             Thread.sleep(7);
             net.sync.get("http://localhost:9001/WSXxgkVin/GetHbcodeByVin", null
                     , new PairBuilder().add("vin", "test")
-
             );
         }
     }
