@@ -15,6 +15,7 @@ public class XSXxgkVinServiceHelper {
 
     private final String manufid;
     private final String password;
+//    private static int i = 0;
 
     private String key;
     private long key_create_time;
@@ -45,13 +46,14 @@ public class XSXxgkVinServiceHelper {
      * <result><succeed>false</succeed><data>用户或密码错误</data></result>
      */
     private synchronized LoginResponse login(final String manufid, final String password, final long callTime) {
-        final boolean isCache = cacheLogin != null && callTime <= key_create_time + 1000;
+        final boolean isCache = cacheLogin != null && callTime <= key_create_time + 50;
 //        System.out.println(String.format("callTime:[%d]\tkey_time:[%d]\tisCache:[%b]", callTime, key_create_time, isCache));
         if (isCache)
             return cacheLogin;
 
         final String res = wsXxgkVinService.login(manufid, password);
-//        System.out.println("Invoke 'WSXxgkVin.login' api, result is [" + res + "]");
+//        final String res = "<result><succeed>succeed</succeed><data>" + ++i + "</data></result>";
+        System.out.println("Invoke 'WSXxgkVin.login' api, result is [" + res + "]");
         final LoginResponse response = new LoginResponse(res);
         if (response.succeed) {
             key = response.data;
@@ -89,6 +91,7 @@ public class XSXxgkVinServiceHelper {
         return retryAction(
                 () -> new GetHbcodeByVinResponse(wsXxgkVinService.getHbcodeByVin(key, vin))
                 , response -> response.succeed);
+//                , response -> i == 7 || response.succeed);
     }
 
     /**
@@ -132,9 +135,13 @@ public class XSXxgkVinServiceHelper {
     public static void main(String[] args) throws InterruptedException {
         final Net net = new Net();
         for (int i = 0; i < 100; i++) {
-            Thread.sleep(7);
-            net.sync.get("http://localhost:9001/WSXxgkVin/GetHbcodeByVin", null
+            Thread.sleep(1);
+            int finalI = i;
+            net.async.get("http://localhost:9001/WSXxgkVin/GetHbcodeByVin", null
                     , new PairBuilder().add("vin", "test")
+                    , r -> {
+                        System.out.println(finalI);
+                    }
             );
         }
     }

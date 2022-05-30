@@ -1,4 +1,4 @@
-package com.holland.demo.wechat;
+package com.holland.demo.wechat.offiaccount;
 
 public class Conf {
     public static final String APPID = "";
@@ -9,7 +9,7 @@ public class Conf {
     public static class AccessToken {
         public final String access_token;
         public final Integer expires_in;
-        private final long createTime;
+        public final long createTime;
 
         public AccessToken(String access_token, Integer expires_in) {
             this.access_token = access_token;

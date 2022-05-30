@@ -15,6 +15,8 @@ public class Cloud {
     private final Net net;
     private final ScheduledThreadPoolExecutor registerPool;
     private final String centerUrl;
+    /* second */
+    private final long pingTime;
 
     private final String serverName;
     private final String serverUrl;
@@ -31,45 +33,49 @@ public class Cloud {
         final DefaultHttpConf conf = new DefaultHttpConf() {
             @Override
             public Request.Builder getRequest(Map<String, ?> headers) {
-                Request.Builder builder = new Request.Builder()
+                final Request.Builder builder = new Request.Builder()
                         .addHeader("timestamp", String.valueOf(System.currentTimeMillis()))
                         .addHeader("Connection", "keep-alive")
                         .addHeader("Accept", "*/*");
-                if (headers != null) {
+                if (headers != null)
                     headers.forEach((name, value) -> builder.addHeader(name, value == null ? "" : value.toString()));
-                }
                 return builder;
             }
         };
         this.net = new Net(conf);
         this.registerPool = new ScheduledThreadPoolExecutor(1, r -> new Thread(r, "heathCheck_thread"));
+        this.pingTime = 5;
         register();
     }
 
     private void register() {
         registerPool.scheduleWithFixedDelay(() -> {
-            net.async.postJson(centerUrl + "/register", null
-                    , new PairBuilder()
-                            .add("server", serverName)
-                            .add("url", serverUrl)
-                            .add("forwardRule", serverForwardRule)
-                    , response -> {
-                        try {
-                            final ResponseBody body = response.body();
-                            if (body != null) {
-                                final String string = body.string();
-                                if ("OK".equals(string)) {
-                                    System.out.println("Register server success");
-                                    return;
+            try {
+                net.async.postJson(centerUrl + "/register", null
+                        , new PairBuilder()
+                                .add("server", serverName)
+                                .add("url", serverUrl)
+                                .add("forwardRule", serverForwardRule)
+                        , response -> {
+                            try {
+                                final ResponseBody body = response.body();
+                                if (body != null) {
+                                    final String string = body.string();
+                                    if ("OK".equals(string)) {
+                                        System.out.println("Register server success");
+                                        return;
+                                    }
                                 }
+                                System.err.println("Register server failed");
+                            } catch (IOException e) {
+                                System.err.println("Register server failed");
+                                e.printStackTrace();
                             }
-                            System.err.println("Register server failed");
-                        } catch (IOException e) {
-                            System.err.println("Register server failed");
-                            e.printStackTrace();
-                        }
-                    });
-        }, 0, 1, TimeUnit.MINUTES);
+                        });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, 0, pingTime, TimeUnit.SECONDS);
     }
 
     public static void main(String[] args) throws InterruptedException {

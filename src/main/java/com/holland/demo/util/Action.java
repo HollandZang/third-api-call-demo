@@ -1,6 +1,5 @@
 package com.holland.demo.util;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
@@ -71,50 +70,5 @@ public class Action {
         return r.stream()
                 .reduce(reduce)
                 .orElse(new BatchRes<>(false, 0, null));
-    }
-
-    public static void main(String[] args) {
-        final long l = System.currentTimeMillis();
-        final List<Integer> source = new ArrayList<>();
-        for (int i = 0; i < 1000; i++)
-            source.add(i);
-
-        final BatchRes<List<String>> singleMapReduce = singleMapReduce(source
-                , integer -> {
-                    if (integer % 2 == 0) {
-                        final List<String> data = new ArrayList<>();
-                        data.add(integer + "a");
-                        return BatchRes.success(data);
-                    } else
-                        return BatchRes.failed(new ArrayList<>());
-                }
-                , (res, res2) -> {
-                    res.success &= res2.success;
-                    res.failedCount += res2.failedCount;
-                    res.data.addAll(res2.data);
-                    return res;
-                });
-
-        final long l1 = System.currentTimeMillis();
-        System.out.println(l1 - l);
-
-        final BatchRes<List<String>> batchMapReduce = batchMapReduce(source
-                , collection -> {
-                    if (collection.size() % 2 == 0) {
-                        final List<String> data = new ArrayList<>();
-                        data.add("这批数据完成了这么多个：" + collection.size());
-                        return BatchRes.success(data);
-                    } else {
-                        return BatchRes.failed(new ArrayList<>());
-                    }
-                }
-                , (res, res2) -> {
-                    res.success &= res2.success;
-                    res.failedCount += res2.failedCount;
-                    res.data.addAll(res2.data);
-                    return res;
-                });
-
-        System.out.println(System.currentTimeMillis() - l1);
     }
 }

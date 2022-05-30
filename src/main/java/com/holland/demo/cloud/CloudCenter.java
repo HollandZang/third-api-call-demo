@@ -2,7 +2,6 @@ package com.holland.demo.cloud;
 
 import com.holland.demo.util.Requests;
 import com.holland.demo.util.Validator;
-import com.holland.net.Net;
 import com.holland.net.conf.DefaultHttpConf;
 import okhttp3.MediaType;
 import okhttp3.Request;
@@ -22,28 +21,25 @@ public class CloudCenter {
     public final Map<String, List<Server>> servers;
     private final long maxFreeTime;
     private final ScheduledThreadPoolExecutor heathCheckPool;
-    private final Net net;
     private final DefaultHttpConf conf;
 
     {
-        /* 1 minute */
-        this.maxFreeTime = 1000 * 60;
+        /* 6 second */
+        this.maxFreeTime = 1000 * 6;
         this.servers = new HashMap<>();
         this.heathCheckPool = new ScheduledThreadPoolExecutor(1, r -> new Thread(r, "heathCheck_thread"));
         this.conf = new DefaultHttpConf() {
             @Override
             public Request.Builder getRequest(Map<String, ?> headers) {
-                Request.Builder builder = new Request.Builder()
+                final Request.Builder builder = new Request.Builder()
                         .addHeader("timestamp", String.valueOf(System.currentTimeMillis()))
                         .addHeader("Connection", "keep-alive")
                         .addHeader("Accept", "*/*");
-                if (headers != null) {
+                if (headers != null)
                     headers.forEach((name, value) -> builder.addHeader(name, value == null ? "" : value.toString()));
-                }
                 return builder;
             }
         };
-        this.net = new Net(this.conf);
 
         heathCheckTask();
     }
@@ -88,17 +84,21 @@ public class CloudCenter {
 
     private void heathCheckTask() {
         heathCheckPool.scheduleWithFixedDelay(() -> {
-            final long currentTimeMillis = System.currentTimeMillis();
-            servers.forEach((name, list) -> {
-                list.removeIf(server -> currentTimeMillis - server.lastConnectTime > maxFreeTime);
-            });
+            try {
+                final long currentTimeMillis = System.currentTimeMillis();
+                servers.forEach((name, list) -> {
+                    list.removeIf(server -> currentTimeMillis - server.lastConnectTime > maxFreeTime);
+                });
 
-            System.out.println("> heathCheck: \n"
-                    + servers.entrySet().stream()
-                    .map(e -> String.format("\t[%s] online: %s", e.getKey(), e.getValue().size()))
-                    .collect(Collectors.joining("\n"))
-            );
-        }, 1, 1, TimeUnit.MINUTES);
+                System.out.println("> heathCheck: \n"
+                        + servers.entrySet().stream()
+                        .map(e -> String.format("\t[%s] online: %s", e.getKey(), e.getValue().size()))
+                        .collect(Collectors.joining("\n"))
+                );
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, maxFreeTime, maxFreeTime, TimeUnit.MILLISECONDS);
     }
 
     public List<Server> findRoute(HttpServletRequest request) {
@@ -130,5 +130,4 @@ public class CloudCenter {
             return null;
         }
     }
-
 }
