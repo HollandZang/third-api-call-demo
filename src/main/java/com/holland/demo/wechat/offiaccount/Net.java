@@ -183,8 +183,8 @@ public class Net {
     }
 
     private static class Retry<T> {
-        public boolean needRetry;
-        public T data;
+        public final boolean needRetry;
+        public final T data;
 
         public Retry(boolean needRetry, T data) {
             this.needRetry = needRetry;
@@ -194,12 +194,5 @@ public class Net {
         public boolean predicate() {
             return !needRetry;
         }
-    }
-
-    public static void main(String[] args) {
-        Conf.token = new Conf.AccessToken("test", 0);
-        final Net net = new Net();
-        final JsonObject object = net.get_current_selfmenu_info();
-        System.out.println(object);
     }
 }
