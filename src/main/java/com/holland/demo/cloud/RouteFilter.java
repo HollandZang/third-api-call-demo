@@ -47,13 +47,17 @@ public class RouteFilter implements Filter {
                 }
 
                 updateServerState((HttpServletRequest) request, server, resp);
-                if (resp.body() == null)
+                if (resp.body() == null) {
+                    outputStream.close();
                     return;
+                }
                 final String respBody = resp.body().string();
                 outputStream.write(respBody.getBytes(StandardCharsets.UTF_8));
+                outputStream.close();
                 return;
             }
             outputStream.write("> failed to reach forwarding service".getBytes(StandardCharsets.UTF_8));
+            outputStream.close();
             return;
         }
         logger.debug("> accept: " + ((HttpServletRequest) request).getRequestURI());

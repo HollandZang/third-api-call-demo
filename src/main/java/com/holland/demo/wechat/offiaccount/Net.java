@@ -21,7 +21,8 @@ public class Net {
     }
 
     /**
-     * https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/Get_access_token.html
+     * <a href="https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/Get_access_token.html">
+     * 开始开发 /获取Access token</a>
      */
     private synchronized Conf.AccessToken getAccessToken(final long callTime) {
         final boolean isCache = Conf.token != null && callTime <= Conf.token.createTime + 50;
@@ -49,8 +50,8 @@ public class Net {
     }
 
     /**
-     * 自定义菜单 /创建接口
-     * https://developers.weixin.qq.com/doc/offiaccount/Custom_Menus/Creating_Custom-Defined_Menu.html
+     * <a href="https://developers.weixin.qq.com/doc/offiaccount/Custom_Menus/Creating_Custom-Defined_Menu.html">
+     * 自定义菜单 /创建接口</a>
      */
     public boolean menu_create(String jsonStr) {
         return retryAction(() -> {
@@ -61,8 +62,8 @@ public class Net {
     }
 
     /**
-     * 自定义菜单 /查询接口
-     * https://developers.weixin.qq.com/doc/offiaccount/Custom_Menus/Querying_Custom_Menus.html
+     * <a href="https://developers.weixin.qq.com/doc/offiaccount/Custom_Menus/Querying_Custom_Menus.html">
+     * 自定义菜单 /查询接口</a>
      */
     public JsonObject get_current_selfmenu_info() {
         return retryAction(() -> {
@@ -73,8 +74,8 @@ public class Net {
     }
 
     /**
-     * 自定义菜单 /删除接口
-     * https://developers.weixin.qq.com/doc/offiaccount/Custom_Menus/Deleting_Custom-Defined_Menu.html
+     * <a href="https://developers.weixin.qq.com/doc/offiaccount/Custom_Menus/Deleting_Custom-Defined_Menu.html">
+     * 自定义菜单 /删除接口</a>
      */
     public boolean menu_delete() {
         return retryAction(() -> {
@@ -85,8 +86,8 @@ public class Net {
     }
 
     /**
-     * 自定义菜单 /个性化菜单接口 创建个性化菜单
-     * https://developers.weixin.qq.com/doc/offiaccount/Custom_Menus/Personalized_menu_interface.html
+     * <a href="https://developers.weixin.qq.com/doc/offiaccount/Custom_Menus/Personalized_menu_interface.html">
+     * 自定义菜单 /个性化菜单接口 创建个性化菜单</a>
      */
     public JsonObject menu_addconditional(String jsonStr) {
         return retryAction(() -> {
@@ -97,8 +98,8 @@ public class Net {
     }
 
     /**
-     * 自定义菜单 /个性化菜单接口 删除个性化菜单
-     * https://developers.weixin.qq.com/doc/offiaccount/Custom_Menus/Personalized_menu_interface.html
+     * <a href="https://developers.weixin.qq.com/doc/offiaccount/Custom_Menus/Personalized_menu_interface.html">
+     * 自定义菜单 /个性化菜单接口 删除个性化菜单</a>
      */
     public JsonObject menu_delconditional(String jsonStr) {
         return retryAction(() -> {
@@ -109,8 +110,8 @@ public class Net {
     }
 
     /**
-     * 自定义菜单 /个性化菜单接口 测试个性化菜单匹配结果
-     * https://developers.weixin.qq.com/doc/offiaccount/Custom_Menus/Personalized_menu_interface.html
+     * <a href="https://developers.weixin.qq.com/doc/offiaccount/Custom_Menus/Personalized_menu_interface.html">
+     * 自定义菜单 /个性化菜单接口 测试个性化菜单匹配结果</a>
      */
     public JsonObject menu_trymatch(String jsonStr) {
         return retryAction(() -> {
@@ -121,8 +122,8 @@ public class Net {
     }
 
     /**
-     * 自定义菜单 /获取自定义菜单配置
-     * https://developers.weixin.qq.com/doc/offiaccount/Custom_Menus/Getting_Custom_Menu_Configurations.html
+     * <a href="https://developers.weixin.qq.com/doc/offiaccount/Custom_Menus/Getting_Custom_Menu_Configurations.html">
+     * 自定义菜单 /获取自定义菜单配置</a>
      */
     public JsonObject menu_get() {
         return retryAction(() -> {

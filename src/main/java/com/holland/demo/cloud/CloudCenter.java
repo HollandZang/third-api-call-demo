@@ -24,8 +24,8 @@ public class CloudCenter {
     private final DefaultHttpConf conf;
 
     {
-        /* 6 second */
-        this.maxFreeTime = 1000 * 6;
+        /* second */
+        this.maxFreeTime = 6;
         this.servers = new HashMap<>();
         this.heathCheckPool = new ScheduledThreadPoolExecutor(1, r -> new Thread(r, "heathCheck_thread"));
         this.conf = new DefaultHttpConf() {
@@ -87,7 +87,7 @@ public class CloudCenter {
             try {
                 final long currentTimeMillis = System.currentTimeMillis();
                 servers.forEach((name, list) -> {
-                    list.removeIf(server -> currentTimeMillis - server.lastConnectTime > maxFreeTime);
+                    list.removeIf(server -> currentTimeMillis - server.lastConnectTime > maxFreeTime * 1000);
                 });
 
                 System.out.println("> heathCheck: \n"
@@ -98,7 +98,7 @@ public class CloudCenter {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }, maxFreeTime, maxFreeTime, TimeUnit.MILLISECONDS);
+        }, maxFreeTime, maxFreeTime, TimeUnit.SECONDS);
     }
 
     public List<Server> findRoute(HttpServletRequest request) {
@@ -108,7 +108,7 @@ public class CloudCenter {
             final List<Server> value = entry.getValue();
             if (value.size() > 0 && uri.matches(value.get(0).forwardRule)) {
                 return value.stream()
-                        .filter(server -> currentTimeMillis - server.lastConnectTime < maxFreeTime)
+                        .filter(server -> currentTimeMillis - server.lastConnectTime < maxFreeTime * 1000)
                         .sorted(LoadBalance::latency)
                         .collect(Collectors.toList());
             }
