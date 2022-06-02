@@ -44,11 +44,11 @@ public class EthConf {
                 , to
                 , "latest");
 
-        final BigDecimal wei = Scale.hex2Dec(eth_getBalance);
+        final BigDecimal wei = Scale.a2Dec(eth_getBalance.substring(2),Scale.HEX_DICT);
         System.out.println(wei + " wei");
 
-        final BigDecimal eth = wei.divide(BigDecimal.valueOf(1000000000000000000L), 18, RoundingMode.HALF_DOWN);
-        System.out.println(eth.toString() + " eth");
+//        final BigDecimal eth = wei.divide(BigDecimal.valueOf(1000000000000000000L), 18, RoundingMode.HALF_DOWN);
+//        System.out.println(eth.toString() + " eth");
 
         System.exit(0);
     }
