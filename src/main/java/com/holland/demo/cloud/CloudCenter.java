@@ -23,6 +23,8 @@ public class CloudCenter {
     private final ScheduledThreadPoolExecutor heathCheckPool;
     private final DefaultHttpConf conf;
 
+    private volatile boolean waitCheck = false;
+
     {
         /* second */
         this.maxFreeTime = 6;
@@ -63,6 +65,8 @@ public class CloudCenter {
 
 //        request.getRemoteHost();
 //        request.getRemotePort();
+        while (waitCheck) {
+        }
         servers.computeIfPresent(serverName, (name, list) -> {
             final Optional<Server> o = list.stream().filter(server -> server.url.equals(url)).findFirst();
             if (o.isPresent()) {
@@ -83,9 +87,10 @@ public class CloudCenter {
     }
 
     private void heathCheckTask() {
-        heathCheckPool.scheduleWithFixedDelay(() -> {
+        heathCheckPool.scheduleAtFixedRate(() -> {
             try {
                 final long currentTimeMillis = System.currentTimeMillis();
+                waitCheck = true;
                 servers.forEach((name, list) -> {
                     list.removeIf(server -> currentTimeMillis - server.lastConnectTime > maxFreeTime * 1000);
                 });
@@ -97,6 +102,8 @@ public class CloudCenter {
                 );
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                waitCheck = false;
             }
         }, maxFreeTime, maxFreeTime, TimeUnit.SECONDS);
     }
