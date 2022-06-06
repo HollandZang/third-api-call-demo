@@ -6,6 +6,11 @@ public class Conf {
 
     public static AccessToken token;
 
+    static {
+        // TODO: get from cache
+        token = new AccessToken("test", -1);
+    }
+
     public static class AccessToken {
         public final String access_token;
         public final Integer expires_in;
