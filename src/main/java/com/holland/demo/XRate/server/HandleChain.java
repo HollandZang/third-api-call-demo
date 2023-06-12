@@ -23,6 +23,8 @@ public class HandleChain {
                 handler.handle(this, ip, account, client);
             } catch (XRateServerException xRateServerException) {
 
+            } catch (Exception e) {
+
             }
         }
     }
